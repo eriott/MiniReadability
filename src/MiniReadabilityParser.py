@@ -30,6 +30,8 @@ class MiniReadabilityParser:
                         paragraph += '[' + p_child.get('href') + ']'
 
                 output += '\n'.join(textwrap.wrap(paragraph, width=80)) + '\n\n'
+            elif elem.tag == 'div':
+                output += self._search_text(elem.getchildren())
         return output
 
     def parse(self, content):
