@@ -9,6 +9,9 @@ class UrlValidatorTest(unittest.TestCase):
     def test_is_valid_returns_True_on_valid_url(self):
         self.assertEqual(self.validator.is_valid('https://google.com'), True)
 
+    def test_is_valid_returns_True_on_valid_url_with_slash_at_the_end_of_path(self):
+        self.assertEqual(self.validator.is_valid('https://google.com/'), True)
+
     def test_is_valid_returns_True_on_url_with_path(self):
         self.assertEqual(self.validator.is_valid('https://google.com/some/path'), True)
 
