@@ -48,4 +48,4 @@ class MiniReadabilityParser:
             divs_with_ps = body_node.xpath('//div[p]')
             output = self._search_text(divs_with_ps)
 
-        return output
+        return output.strip()
