@@ -3,6 +3,7 @@ import requests
 from urllib.parse import urlparse
 from src.MiniReadabilityParser import MiniReadabilityParser
 from src.TextFileWriter import TextFileWriter
+from src.UrlValidator import UrlValidator
 
 if sys.argv[1] == '-f':
     filename = sys.argv[2]
@@ -12,6 +13,10 @@ else:
     urls = [sys.argv[1]]
 
 for url in urls:
+    if not(UrlValidator().is_valid(url)):
+        print('Skip invalid URL', url)
+        continue
+
     print('Process URL', url)
 
     page = requests.get(url)
