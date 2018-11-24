@@ -11,12 +11,12 @@ class MiniReadabilityParser:
             for j in range(len(ps)):
                 print(ps[j].text_content())  # все p теги
 
-    def _search_text(self, nodes):
+    def _search_text(self, node):
         output = ''
         headers_pattern = "^h[1-6]$"
         headers = re.compile(headers_pattern)
-        for elem in nodes:
-            # for elem in node.getchildren():
+        # for elem in nodes:
+        for elem in node.getchildren():
             if not (isinstance(elem.tag, str)):
                 continue
 
@@ -30,8 +30,9 @@ class MiniReadabilityParser:
                         paragraph += '[' + p_child.get('href') + ']'
 
                 output += '\n'.join(textwrap.wrap(paragraph, width=80)) + '\n\n'
-            elif elem.tag == 'div':
-                output += self._search_text(elem.getchildren())
+                print(type(elem))
+            elif isinstance(elem, html.HtmlElement):
+                output += self._search_text(elem)
         return output
 
     def parse(self, content):
@@ -45,7 +46,7 @@ class MiniReadabilityParser:
         if len(articles) > 0:
             output = self._search_text(articles)
         else:
-            divs_with_ps = body_node.xpath('//div[p]')
-            output = self._search_text(divs_with_ps)
+            # divs_with_ps = body_node.xpath('//div')
+            output = self._search_text(body_node)
 
         return output.strip()
