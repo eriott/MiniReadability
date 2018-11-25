@@ -1,6 +1,6 @@
 max_line_width = 80
 
-ignore_tags = ['script', 'style']
+ignore_tags = ['script', 'style', 'footer', 'nav', 'form']
 
 text_tags = ['h[1-6]', 'p', 'ul', 'li', 'b', 'i', 'pre', 'code', 'a']
 
