@@ -19,13 +19,22 @@ for url in urls:
         print('Skip invalid URL', url)
         continue
 
-    print('Process URL', url)
+    try:
+        print('Process URL', url)
+        page = requests.get(url)
+        encoding = page.encoding if page.encoding else 'utf-8'
 
-    page = requests.get(url)
-    # testPage = '<body><div><h2>Header</h2><p>Hello <span>world</span> <a href=\'google.com\'>Click here</a></p></div></body>'
-    output = MiniReadabilityParser().parse(page.content.decode(page.encoding))
+        if not page.content:
+            raise Exception('No content received from URL')
 
-    output_filename = UrlFilepathParser().parse(url)
-    TextFileWriter().write(output_filename, output)
-    print('File saved to', output_filename)
-    print()
+        output = MiniReadabilityParser().parse(page.content.decode(page.encoding), url)
+
+        file_path = UrlFilepathParser().parse(url)
+        TextFileWriter().write(file_path, output)
+        print()
+    except UnicodeDecodeError as e:
+        print('Can not decode page content with encoding', encoding)
+    except requests.exceptions.RequestException as e:
+        print('Can not get page.')
+    except Exception as e:
+        print('Error has occurred:', e)
