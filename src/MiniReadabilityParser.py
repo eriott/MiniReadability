@@ -14,55 +14,50 @@ class Element:
 
     def __init__(self, elem):
         self.element = elem
-        text = re.sub('[ \n\t]+', ' ', elem.text_content())
+        text = re.sub('[ \r\n\t]+', ' ', elem.text_content())
 
         self.sentences = [x.strip() for x in list(filter(None, text.split('.')))]
         self.sentences_count = len(self.sentences)
-        self.sentences_avg_length = sum(map(lambda x: len(x), self.sentences)) / len(self.sentences) if len(self.sentences) > 0 else 0
+        self.sentences_avg_length = sum(map(lambda x: len(x), self.sentences)) / len(self.sentences) if len(
+            self.sentences) > 0 else 0
         self.cost = self.sentences_count * 10 + self.sentences_avg_length * 0.05
 
 
 class MiniReadabilityParser:
-    def search_p(self, tree):
-        for i in range(len(tree)):
-            ps = tree[i].xpath('.//p')
-            for j in range(len(ps)):
-                print(ps[j].text_content())  # все p теги
-
-    # def _search_text(self, node):
-    #     output = ''
-    #     headers_pattern = "^h[1-6]$"
-    #     headers = re.compile(headers_pattern)
-    #     # for elem in nodes:
-    #     for elem in node.getchildren():
-    #         if not (isinstance(elem.tag, str)):
-    #             continue
-    #
-    #         if headers.match(elem.tag):
-    #             output += '\n'.join(textwrap.wrap(elem.text_content(), width=80))
-    #             output += '\n\n'
-    #         elif elem.tag == 'p':
-    #             paragraph = elem.text_content()
-    #             for p_child in elem.getchildren():
-    #                 if p_child.tag == 'a':
-    #                     paragraph += '[' + p_child.get('href') + ']'
-    #
-    #             output += '\n'.join(textwrap.wrap(paragraph, width=80)) + '\n\n'
-    #             print(type(elem))
-    #         elif isinstance(elem, html.HtmlElement):
-    #             output += self._search_text(elem)
-    #     return output
+    text_tags_pattern = re.compile('^h[1-6]|a|p|ul|li$')
+    format_rules = {
+        'p': '{val}\n\n',
+        'h[1-6]': '{val}\n\n',
+        'a': lambda params: '{val} [{href}]' if 'href' in params else '{val}',
+        'li': ' - {val}\n',
+        'ul': '\n{val}\n'
+    }
 
     def _format(self, elem):
-        content = re.sub('[ \n\t]+', ' ', elem.text_content().strip())
+        print('Format tag', elem.tag, ', text:', elem.text, ', text_content:', elem.text_content())
+        elem.text = re.sub('[ \r\n\t]+', ' ', elem.text) if bool(elem.text) else ''
+        elem.tail = re.sub('[ \r\n\t]+', ' ', elem.tail) if bool(elem.tail) else ''
+        content = elem.text_content()
         for subnode in elem.getchildren():
             subnode.drop_tree()
-        elem.text = content + '\n\n'
+
+        formats = [(key, value) for key, value in self.format_rules.items() if re.compile(key).match(elem.tag)]
+        format = None
+        if len(formats) > 0:
+            format = formats[0]
+        if format:
+            attrs = {}
+            for att in elem.attrib:
+                attrs[att] = elem.attrib[att]
+            if callable(format[1]):
+                params = {'val': content, **attrs}
+                elem.text = format[1](params).format(**params)
+            else:
+                elem.text = format[1].format(**{'val': content, **attrs})
+        else:
+            elem.text = content
 
     def _search_text(self, node):
-        headers_pattern = "^h[1-6]$"
-        headers = re.compile(headers_pattern)
-        # for elem in nodes:
         for elem in node.getchildren():
             if not (isinstance(elem.tag, str)):
                 continue
@@ -70,21 +65,13 @@ class MiniReadabilityParser:
             if isinstance(elem, html.HtmlElement):
                 self._search_text(elem)
 
-            if headers.match(elem.tag):
+            if self.text_tags_pattern.match(elem.tag):
                 self._format(elem)
-            elif elem.tag == 'p':
-                self._format(elem)
-            elif elem.tag == 'a':
-                link = ' [' + str(elem.get('href')) +  ']' if bool(elem.get('href')) else ''
-                content = elem.text_content().strip()
-                for subnode in elem.getchildren():
-                    subnode.drop_tree()
-                elem.text = content + link
 
         print(node.tag, ':', node.text)
-        node.text = re.sub('[ \n\t]+', ' ', node.text.strip()) if bool(node.text) else ''
-        output = node.text_content().strip()
-        return '\n'.join(['\n'.join(textwrap.wrap(x, width=80)) for x in output.split('\n')])
+        # node.text = re.sub('[ \n\t]+', ' ', node.text.strip()) if bool(node.text) else ''
+        output = node.text_content()
+        return output
 
     elements = []
 
@@ -126,17 +113,9 @@ class MiniReadabilityParser:
 
         # TextFileWriter().write('res1.txt', content.text + content.tail)
 
+        text = self._search_text(content)
+        output = re.sub('\r\n', '\n', text)
+        wrapped = '\n'.join(['\n'.join(textwrap.wrap(x, width=80)) for x in output.split('\n')])
+        wrapped = re.sub('\n\n+', '\n\n', wrapped)
 
-        output = self._search_text(content)
-
-
-        # articles = body_node.xpath('//article/h1 | //article/div/p | //article/p')
-        #
-        # print('Found <article>:', len(articles) > 0)
-        # if len(articles) > 0:
-        #     output = self._search_text(articles)
-        # else:
-        #     # divs_with_ps = body_node.xpath('//div')
-        #     output = self._search_text(body_node)
-
-        return output.strip()
+        return wrapped.strip()
