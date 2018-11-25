@@ -3,16 +3,12 @@ import textwrap
 
 from lxml import html
 
+import config
+from src import utils
+
 
 class HtmlToTextConverter:
     text_tags_pattern = re.compile('^h[1-6]|a|p|ul|li$')
-    format_rules = {
-        'p': '{val}\n\n',
-        'h[1-6]': '{val}\n\n',
-        'a': lambda params: '{val} [{href}]' if 'href' in params else '{val}',
-        'li': ' - {val}\n',
-        'ul': '\n{val}\n'
-    }
 
     def _format(self, elem):
         elem.text = re.sub('[ \r\n\t]+', ' ', elem.text) if bool(elem.text) else ''
@@ -21,10 +17,8 @@ class HtmlToTextConverter:
         for subnode in elem.getchildren():
             subnode.drop_tree()
 
-        formats = [(key, value) for key, value in self.format_rules.items() if re.compile(key).match(elem.tag)]
-        format = None
-        if len(formats) > 0:
-            format = formats[0]
+        format = utils.match_keys(elem.tag, config.format_rules)
+
         if format:
             attrs = {}
             for att in elem.attrib:
@@ -45,7 +39,7 @@ class HtmlToTextConverter:
             if isinstance(elem, html.HtmlElement):
                 self._search_text(elem)
 
-            if self.text_tags_pattern.match(elem.tag):
+            if utils.match_items(elem.tag, config.text_tags):
                 self._format(elem)
 
         output = node.text_content()
@@ -53,6 +47,6 @@ class HtmlToTextConverter:
 
     def convert(self, html):
         output = self._search_text(html)
-        wrapped = '\n'.join(['\n'.join(textwrap.wrap(x, width=80)) for x in output.split('\n')])
+        wrapped = '\n'.join(['\n'.join(textwrap.wrap(x, width=config.max_line_width)) for x in output.split('\n')])
 
         return re.sub('\n\n+', '\n\n', wrapped).strip()
