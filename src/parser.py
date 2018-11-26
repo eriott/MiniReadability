@@ -1,6 +1,8 @@
 from lxml import html
 from urllib.parse import urlparse
 
+import config
+from src import utils
 from src.services import ContentDefineService
 from src.converters import HtmlToTextConverter
 
@@ -17,7 +19,7 @@ class MiniReadabilityParser:
             title_tag = tree.xpath('//title')[0].text_content() + '\n\n' if tree.xpath('//title') else ''
             title = og_title or title_tag
 
-        return title + HtmlToTextConverter().convert(content)
+        return utils.wrap(title, config.max_line_width) + HtmlToTextConverter().convert(content)
 
 
 class RelativeLinksProcessor:
@@ -26,7 +28,6 @@ class RelativeLinksProcessor:
         scheme, host = parsed_base_url.scheme, parsed_base_url.netloc
 
         for link in content.xpath('.//a'):
-            print(link)
             if 'href' in link.attrib:
                 parsed = urlparse(link.attrib['href'])
                 if (not parsed.scheme) or (not parsed.netloc):
