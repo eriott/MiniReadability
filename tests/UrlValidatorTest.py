@@ -26,7 +26,3 @@ class UrlValidatorTest(unittest.TestCase):
 
     def test_is_valid_returns_False_on_number(self):
         self.assertEqual(self.validator.is_valid(123), False)
-
-
-if __name__ == '__main__':
-    unittest.main()

@@ -26,6 +26,3 @@ class UrlToFilepathConverterTest(unittest.TestCase):
 
     def test_convert_converts_domain_with_one_path_component_properly(self):
         self.assertEqual(self.parser.convert('https://google.com/index.html'), 'google.com/index.txt')
-
-if __name__ == '__main__':
-    unittest.main()
