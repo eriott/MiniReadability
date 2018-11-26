@@ -41,6 +41,13 @@ http://lenta.ru/news/2013/03/dtp/index.html => [CUR_DIR]/lenta.ru/news/2013/03/d
 
 ---
 
+## Пример запуска
+
+```
+ pip install -r requirements.txt
+ python main.py https://habr.com/company/mailru/blog/429186/
+```
+
 ## Алгоритм
 
 Предположим, что полезный контент на html-странице обычно представляет собой текст в виде предложений, отформатированных с использованием html-тегов для текстовой разметки: p, h1-h6, b, i и др.; ссылок, специальных блоков (например, code). 
