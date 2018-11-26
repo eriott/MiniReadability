@@ -2,7 +2,6 @@ import re
 
 import config
 from src import utils
-from src.io import TextFileWriter
 
 
 class WeightElement:
@@ -10,25 +9,23 @@ class WeightElement:
         punctuation_pattern = '[,:‐–—;«»"\'()]'
         sentence_pattern = '\s*[^.!?]+[.!?]'
 
-        word_avg_length = 6.5
-        sentence_avg_length = 30
-        chars_per_punctuation_avg_count = 40
+        chars_per_punctuation_avg_count = 40 # посчитано по нескольким статьям
 
         self.element = elem
         self.text = re.sub('[ \r\n\t]+', ' ', elem.text_content())
         self.sentences = [x.strip() for x in list(filter(None, re.findall(sentence_pattern, self.text)))]
         self.sentences_count = len(self.sentences)
-        self.sentences_avg_length = sum(map(lambda x: len(x), self.sentences)) / len(self.sentences) if len(self.sentences) > 0 else 0
-        self.punctuation_count = len(re.findall(punctuation_pattern, self.text))
-        self.chars_per_punctuation = len(self.text) / (self.punctuation_count + 1)
+        self.sentences_avg_length = sum(map(lambda x: len(x), self.sentences)) / self.sentences_count if self.sentences_count > 0 else 0 # средняя длина предложения в символах
+        self.punctuation_count = len(re.findall(punctuation_pattern, self.text)) # количество знаков препинания во всем тексте
+        self.chars_per_punctuation = len(self.text) / (self.punctuation_count + 1) # через каждые сколько символов встречается знак пунктуации
 
-        self.param = 0
+        self.chars_per_punctuation_avg_ratio = 0 # соотношения данного среднего с "идеальным"
         if chars_per_punctuation_avg_count > self.chars_per_punctuation:
-            self.param = chars_per_punctuation_avg_count / self.chars_per_punctuation if self.chars_per_punctuation else 1
+            self.chars_per_punctuation_avg_ratio = chars_per_punctuation_avg_count / self.chars_per_punctuation if self.chars_per_punctuation else 1
         else:
-            self.param = self.chars_per_punctuation / chars_per_punctuation_avg_count
+            self.chars_per_punctuation_avg_ratio = self.chars_per_punctuation / chars_per_punctuation_avg_count
 
-        self.cost = self.sentences_count * 10 + self.sentences_avg_length * 0.05 - (self.param - 1) * 100
+        self.cost = self.sentences_count * 10 + self.sentences_avg_length * 0.05 - (self.chars_per_punctuation_avg_ratio - 1) * 10
 
 
 class ContentDefineService:
@@ -51,28 +48,10 @@ class ContentDefineService:
                 self.elements.append(WeightElement(el))
 
     def get_content(self, html):
-        body_node = html.body
+        self.register_containers(html.body)
 
-        self.register_containers(body_node)
-        temp = ''
-        for e in self.elements:
-            temp += '---\n\n'
-            temp += 'Sentences ' + str(e.sentences) + '\n\n'
-            temp += 'Sentences count ' + str(e.sentences_count) + '\n\n'
-            temp += 'Sentences avg length ' + str(e.sentences_avg_length) + '\n\n'
-            temp += 'Punctuation count ' + str(e.punctuation_count) + '\n\n'
-            temp += 'Text length ' + str(len(e.text)) + '\n\n'
-            temp += 'Chars Per Punctuation' + str(e.chars_per_punctuation) + '\n\n'
-            temp += 'Param' + str(e.param) + '\n\n'
-            temp += 'Score ' + str(e.cost) + '\n\n'
-            temp += e.element.text_content() + '\n\n'
-            temp += '---\n\n'
-            temp += '---\n\n'
+        content = None
+        if self.elements:
+            content = max(self.elements, key=lambda x: x.cost)
 
-        TextFileWriter().write('res.txt', temp)
-
-        sorted_elements = list(sorted(self.elements, key=lambda x: x.cost, reverse=True))
-
-        content = sorted_elements[0].element
-
-        return content
+        return content.element
