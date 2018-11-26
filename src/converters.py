@@ -67,12 +67,12 @@ class UrlToFilepathConverter:
         components = list(filter(None, path.split('/')))
         if components:
             last_component = components[-1]
-            components = components[:-1]
+            other_components = components[:-1]
             index_of_dot = last_component.rfind('.')
             if index_of_dot > -1:
                 last_component = last_component[:index_of_dot] + file_type
             else:
                 last_component = last_component + file_type
-            return host + '/' + '/'.join(components) + '/' + last_component
+            return host + (('/' + '/'.join(other_components)) if other_components else '') + '/' + last_component
         else:
             return host + file_type
