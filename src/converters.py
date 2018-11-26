@@ -11,8 +11,8 @@ class HtmlToTextConverter:
     text_tags_pattern = re.compile('^h[1-6]|a|p|ul|li$')
 
     def _format(self, elem):
-        elem.text = re.sub('[\r\n\t]+', '', elem.text) if bool(elem.text) else ''
-        elem.tail = re.sub('[\r\n\t]+', '', elem.tail) if bool(elem.tail) else ''
+        elem.text = re.sub('[\r\n]+', '', elem.text) if bool(elem.text) else ''
+        elem.tail = re.sub('[\r\n]+', '', elem.tail) if bool(elem.tail) else ''
         content = elem.text_content()
         for subnode in elem.getchildren():
             subnode.drop_tree()
