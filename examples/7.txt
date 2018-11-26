@@ -1,0 +1,152 @@
+Подборка @pythonetc, октябрь 2018
+
+Это пятая подборка советов про Python и программирование из моего авторского
+канала @pythonetc.
+
+Предыдущие подборки:
+
+ - Сентябрь 2018 [https://habr.com/company/mailru/blog/425125/]
+ - Август 2018 [https://habr.com/company/mailru/blog/422789/]
+ - Июль 2018 [https://habr.com/company/mailru/blog/419025/]
+ - Июнь 2018 [https://habr.com/company/mailru/blog/416605/]
+
+Разделитель --
+
+Каждая порядочная утилита командной строки должна принимать аргументы в форме
+опций (например, -h или --help), опций с параметрами (--log-level 2) или
+позиционных параметров (cp file1 file2).
+
+Опции отличаются от позиционных параметров наличием одной или двух черточек в
+начале. Когда с черточки начинаются позиционные аргументы, возникают проблемы:
+если вы хотите удалить файл с именем -rf, то команда rm -rf вам в этом не
+поможет.
+
+Простой способ выйти из положения – использовать в качестве разделителя две
+черточки. Аргументы после — не считаются опциями:
+
+$ echo test > -rf
+$ cat -rf
+cat: invalid option -- 'r'
+Try 'cat --help' for more information.
+$ cat -- -rf
+test
+$ rm -- -rf
+$ cat -- -rf
+cat: -rf: No such file or directory
+
+Две черточки поддерживаются модулем argparse из коробки.
+
+Устойчивость сортировки
+
+Стандартная сортировка в Python — устойчивая, функция sorted не меняет порядок
+равных объектов:
+
+In : a = [2, -1, 0, 1, -2]
+
+In : sorted(a, key=lambda x: x**2)
+Out: [0, -1, 1, 2, -2]
+
+Функции min и max также согласованы с sorted. max работает как sorted(a,
+reverse=True)[0], а min – sorted(a)[0]. Это означает, что обе функции возвращают
+самый левый возможный ответ:
+
+In : max([2, -2], key=lambda x: x**2)
+Out: 2
+
+In : max([-2, 2], key=lambda x: x**2)
+Out: -2
+
+In : min([2, -2], key=lambda x: x**2)
+Out: 2
+
+In : min([-2, 2], key=lambda x: x**2)
+Out: -2
+
+Кеш в аргументе по умолчанию
+
+Пожалуй, самая распространенная ошибка среди начинающих питонистов – указание
+изменяемого объекта в качестве аргумента функции по умолчанию. Разделение этого
+объекта между вызовами функции может привести к самым странным результатам:
+
+def append_length(lst=[]):
+    lst.append(len(lst))
+    return lst
+
+print(append_length([1, 2])) # [1, 2, 2]
+print(append_length())       # [0]
+print(append_length())       # [0, 1]
+
+Тем не менее, такой совместный доступ будет даже полезен, если использовать
+объект для создания общего кэша:
+
+def fact(x, cache={0: 1}):
+    if x not in cache:
+        cache[x] = x * fact(x - 1)
+
+    return cache[x]
+
+print(fact(5))
+
+В данном примере мы помещаем рассчитанные значения факториала внутрь значения
+аргумента по умолчанию. Такие значения даже можно извлечь:
+
+>>> fact.__defaults__
+({0: 1, 1: 1, 2: 2, 3: 6, 4: 24, 5: 120},)
+
+Работа с ФС
+
+Вы можете работать с путями файловой системы при помощи модуля os.path. Модуль
+содержит множество функций, которые воспринимают строки как файловые пути и
+проводят над ними разные полезные операции вроде конкатенации:
+
+>>> import os.path
+>>> os.path.join('/usr', 'local')
+'/usr/local'
+>>> os.path.dirname('/var/log')
+'/var'
+
+Начиная с версии 3.4, Python включает модуль pathlib, предлагающий объектно-
+ориентированный подход:
+
+>>> from pathlib import Path
+>>> Path('/usr') / Path('local')
+PosixPath('/usr/local')
+>>> Path('/usr') / 'local'
+PosixPath('/usr/local')
+>>> Path('/var/log').parent
+PosixPath('/var')
+>>> Path('/var/log').parent.name
+'var'
+
+Вызываемые объекты
+
+В Python создать вызываемый объект можно не только создавая функции (с помощью
+синтаксических конструкций def или lambda). Объект становится вызываемым, если у
+него есть метод __call__:
+
+class Truncater:
+    def __init__(self, length):
+        self._length = length
+
+    def __call__(self, s):
+        return s[0:self._length]
+
+print(Truncater(4)('abcdabcd')) # abcd
+
+Поскольку декоратор по сути является функцией высшего порядка, его также можно
+выразить вызываемым объектом, а не функцией:
+
+class cached:
+    def __init__(self, func):
+        self._func = func
+        self._cache = {}
+
+    def __call__(self, arg):
+        if arg not in self._cache:
+            self._cache[arg] = self._func(arg)
+
+        return self._cache[arg]
+
+@cached
+def sqr(x):
+    return x * x

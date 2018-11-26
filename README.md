@@ -80,9 +80,9 @@ http://lenta.ru/news/2013/03/dtp/index.html => [CUR_DIR]/lenta.ru/news/2013/03/d
 Программа тестировалась на URL:
 
 - https://www.gazeta.ru/sport/news/2018/11/23/n_12322837.shtml -> [результат](examples/1.txt) 
-- https://lenta.ru/news/2018/11/23/elephants/
-- https://meduza.io/news/2018/11/23/fsb-soobschila-o-pytkah-v-reabilitatsionnyh-tsentrah-v-saratove-tam-uderzhivayut-lyudey-s-alkogolnoy-i-narkozavisimostyu
-- http://www.nashgorod.ru/news/economy/23-11-2018/rossiyane-uhodyat-v-on-layn-prodazhi-cherez-doski-ob-yavleniy-i-sotsseti-dostigli-600-mlrd
-- https://rg.ru/2018/11/23/v-kremle-obiavili-datu-bolshoj-press-konferencii-putina.html
-- https://medium.com/s/nerd-processor/the-ultimate-guide-to-fantastic-beasts-2-460814f88d79
-- https://habr.com/company/mailru/blog/429186/
+- https://lenta.ru/news/2018/11/23/elephants/ -> [результат](examples/2.txt)
+- https://meduza.io/news/2018/11/23/fsb-soobschila-o-pytkah-v-reabilitatsionnyh-tsentrah-v-saratove-tam-uderzhivayut-lyudey-s-alkogolnoy-i-narkozavisimostyu -> [результат](examples/3.txt)
+- http://www.nashgorod.ru/news/economy/23-11-2018/rossiyane-uhodyat-v-on-layn-prodazhi-cherez-doski-ob-yavleniy-i-sotsseti-dostigli-600-mlrd -> [результат](examples/4.txt)
+- https://rg.ru/2018/11/23/v-kremle-obiavili-datu-bolshoj-press-konferencii-putina.html -> [результат](examples/5.txt)
+- https://medium.com/s/nerd-processor/the-ultimate-guide-to-fantastic-beasts-2-460814f88d79 -> [результат](examples/6.txt)
+- https://habr.com/company/mailru/blog/429186/ -> [результат](examples/7.txt)
