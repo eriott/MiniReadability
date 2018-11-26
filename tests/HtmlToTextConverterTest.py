@@ -39,7 +39,7 @@ class HtmlToTextConverterTest(unittest.TestCase):
 
         self.assertEqual(self.converter.convert(html.fromstring(input)), 'Link 1 [https://any.url]\n\nText 1 Link 2 [https://other.url]\n\nText 2')
 
-    def test_convert_converts_does_not_add_href_when_link_has_no_href(self):
+    def test_convert_does_not_add_href_when_link_has_no_href(self):
         input = '<body>' \
                     '<div>' \
                         '<a>Link 1</a>' \
@@ -47,3 +47,16 @@ class HtmlToTextConverterTest(unittest.TestCase):
                 '</body>'
 
         self.assertEqual(self.converter.convert(html.fromstring(input)), 'Link 1')
+
+
+    def test_convert_converts_br_tags(self):
+        input = '<body>' \
+                    '<div>' \
+                        'Some text' \
+                        '<br>' \
+                        '<br>' \
+                        'Other text' \
+                    '</div>' \
+                '</body>'
+
+        self.assertEqual(self.converter.convert(html.fromstring(input)), 'Some text\n\nOther text')
