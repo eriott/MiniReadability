@@ -8,8 +8,6 @@ from src import utils
 
 
 class HtmlToTextConverter:
-    text_tags_pattern = re.compile('^h[1-6]|a|p|ul|li$')
-
     def _format(self, elem):
         elem.text = re.sub('[\r\n]+', '', elem.text) if bool(elem.text) else ''
         elem.tail = re.sub('[\r\n]+', '', elem.tail) if bool(elem.tail) else ''
@@ -42,8 +40,7 @@ class HtmlToTextConverter:
             if isinstance(elem, html.HtmlElement):
                 self._search_text(elem)
 
-            if utils.match_items(elem.tag, config.text_tags):
-                self._format(elem)
+            self._format(elem)
 
         output = node.text_content()
         return output
