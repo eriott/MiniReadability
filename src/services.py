@@ -2,7 +2,7 @@ import re
 
 import config
 from src import utils
-from src.TextFileWriter import TextFileWriter
+from src.io import TextFileWriter
 
 
 class WeightElement:

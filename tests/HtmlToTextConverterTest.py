@@ -2,7 +2,7 @@ import unittest
 
 from lxml import html
 
-from src.HtmlToTextConverter import HtmlToTextConverter
+from src.converters import HtmlToTextConverter
 
 
 class HtmlToTextConverterTest(unittest.TestCase):

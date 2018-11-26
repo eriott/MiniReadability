@@ -1,7 +1,7 @@
 import unittest
 from lxml import html
 
-from src.RelativeLinksProcessor import RelativeLinksProcessor
+from src.parser import RelativeLinksProcessor
 
 
 class RelativeLinksProcessorTest(unittest.TestCase):

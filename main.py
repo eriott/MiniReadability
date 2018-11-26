@@ -2,10 +2,10 @@ import sys
 
 import requests
 
-from src.MiniReadabilityParser import MiniReadabilityParser
-from src.TextFileWriter import TextFileWriter
-from src.UrlFilepathParser import UrlFilepathParser
-from src.UrlValidator import UrlValidator
+from src.parser import MiniReadabilityParser
+from src.io import TextFileWriter
+from src.converters import UrlToFilepathConverter
+from src.validators import UrlValidator
 
 if sys.argv[1] == '-f':
     filename = sys.argv[2]
@@ -29,7 +29,7 @@ for url in urls:
 
         output = MiniReadabilityParser().parse(page.content.decode(page.encoding), url)
 
-        file_path = UrlFilepathParser().parse(url)
+        file_path = UrlToFilepathConverter().convert(url)
         TextFileWriter().write(file_path, output)
         print()
     except UnicodeDecodeError as e:

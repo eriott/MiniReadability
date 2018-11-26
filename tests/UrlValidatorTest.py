@@ -1,6 +1,6 @@
 import unittest
 
-from src.UrlValidator import UrlValidator
+from src.validators import UrlValidator
 
 
 class UrlValidatorTest(unittest.TestCase):
