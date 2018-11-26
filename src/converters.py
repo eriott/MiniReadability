@@ -1,5 +1,4 @@
 import re
-import textwrap
 from urllib.parse import urlparse
 
 from lxml import html
@@ -37,7 +36,7 @@ class HtmlToTextConverter:
             if not (isinstance(elem.tag, str)):
                 continue
 
-            if elem.tag == 'code':
+            if utils.match_items(elem.tag, config.not_format_tags):
                 continue
 
             if isinstance(elem, html.HtmlElement):
@@ -51,18 +50,22 @@ class HtmlToTextConverter:
 
     def convert(self, html):
         output = self._search_text(html)
-        wrapped = '\n'.join(['\n'.join(textwrap.wrap(x, width=config.max_line_width)) for x in output.split('\n')])
-
+        wrapped = utils.wrap(output, config.max_line_width)
         return re.sub('\n\n+', '\n\n', wrapped).strip()
 
 
 class UrlToFilepathConverter:
+    replace_symbols = '[\:*?"<>|+]+'
+
     def convert(self, url):
         file_type = '.txt'
-        parsed_url = urlparse(url)
 
-        if bool(parsed_url.path):
-            components = list(filter(None, parsed_url.path.split('/')))
+        parsed_url = urlparse(url)
+        host = re.sub(self.replace_symbols, '_', parsed_url.netloc)
+        path = re.sub(self.replace_symbols, '_', parsed_url.path)
+
+        components = list(filter(None, path.split('/')))
+        if components:
             last_component = components[-1]
             components = components[:-1]
             index_of_dot = last_component.rfind('.')
@@ -70,6 +73,6 @@ class UrlToFilepathConverter:
                 last_component = last_component[:index_of_dot] + file_type
             else:
                 last_component = last_component + file_type
-            return parsed_url.netloc + '/' + '/'.join(components) + '/' + last_component
+            return host + '/' + '/'.join(components) + '/' + last_component
         else:
-            return parsed_url.netloc + file_type
+            return host + file_type

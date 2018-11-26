@@ -18,5 +18,12 @@ class UrlToFilepathConverterTest(unittest.TestCase):
     def test_parse_returns_directory_and_removes_slash_at_the_end_of_path(self):
         self.assertEqual(self.parser.convert('https://google.com/some/long/very/long/path/'), 'google.com/some/long/very/long/path.txt')
 
+    def test_replaces_not_allowed_symbols_with_underscore(self):
+        self.assertEqual(self.parser.convert('https://google.com/so+me/l<o>ng/very/lo:ng/p*a\\th'), 'google.com/so_me/l_o_ng/very/lo_ng/p_a_th.txt')
+
+    def test_replaces_not_allowed_symbols_with_underscore1(self):
+        self.assertEqual(self.parser.convert('https://google.com/'), 'google.com.txt')
+
+
 if __name__ == '__main__':
     unittest.main()
