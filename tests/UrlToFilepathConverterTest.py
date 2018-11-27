@@ -21,7 +21,7 @@ class UrlToFilepathConverterTest(unittest.TestCase):
     def test_replaces_not_allowed_symbols_with_underscore(self):
         self.assertEqual(self.parser.convert('https://google.com/so+me/l<o>ng/very/lo:ng/p*ath'), 'google.com/so_me/l_o_ng/very/lo_ng/p_ath.txt')
 
-    def test_replaces_not_allowed_symbols_with_underscore1(self):
+    def test_convert_converts_domain_with_only_slash_properly(self):
         self.assertEqual(self.parser.convert('https://google.com/'), 'google.com.txt')
 
     def test_convert_converts_domain_with_one_path_component_properly(self):
