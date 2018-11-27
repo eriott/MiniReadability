@@ -1,9 +1,8 @@
 max_line_width = 80
 
-container_tags = ['div', 'article', 'section']
+container_tags = ['div', 'article', 'section'] # в этих тегах будет выполняться поиск контента
 ignore_tags = ['script', 'style', 'footer', 'nav', 'form']
-text_tags = ['h[1-6]', 'p', 'ul', 'ol', 'li', 'b', 'i', 'pre', 'code', 'a', 'br', 'code']
-not_format_tags = ['code']
+not_format_tags = ['code'] # содержимое этих тегов не будет форматироваться
 
 format_rules = {
     'p': '\n\n{val}\n\n',
