@@ -31,7 +31,7 @@ class WeightElement:
 class ContentDefineService:
     elements = []
 
-    def register_containers(self, elem):
+    def _register_containers(self, elem):
         children = elem.getchildren()
         for el in children:
             if not(isinstance(el.tag, str)):
@@ -42,13 +42,13 @@ class ContentDefineService:
                 el.drop_tree()
                 continue
 
-            self.register_containers(el)
+            self._register_containers(el)
             if utils.match_items(el.tag, config.container_tags):
                 el.drop_tree()
                 self.elements.append(WeightElement(el))
 
     def get_content(self, html):
-        self.register_containers(html.body)
+        self._register_containers(html.body)
 
         content = None
         if self.elements:

@@ -12,6 +12,6 @@ class TextFileWriter:
             with open(file_path, 'w', encoding='utf-8') as output_file:
                 output_file.write(text)
 
-            print('File {0} saved'.format(file_path))
+            print('File saved {0}'.format(file_path))
         except Exception as e:
             print('Can not save file {0} with error {1}'.format(file_path, e))
